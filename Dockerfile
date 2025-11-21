@@ -10,7 +10,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Копируем код приложения
 COPY main.py .
-
+COPY .env .
 # Запускаем приложение
 CMD ["python", "main.py"]
 
