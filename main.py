@@ -1,12 +1,20 @@
 import random
+import os
 import requests
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+
+# Загружаем переменные окружения из .env файла
+load_dotenv()
 
 
 class RoutePlannerBot:
     def __init__(self):
-        self.bot_token = "8429153542:AAHEvX3Ow-AdfHg6Lc5chRi5V6OWj8-ALT8"
-        self.chat_id = None  # Нужно получить
+        self.bot_token = os.getenv("BOT_TOKEN")
+        if not self.bot_token:
+            raise ValueError("BOT_TOKEN не найден в переменных окружения. Создайте .env файл с BOT_TOKEN")
+        
+        self.chat_id = os.getenv("CHAT_ID")  # Опционально, можно получить автоматически
         self.telegram_url = f"https://api.telegram.org/bot{self.bot_token}/"
 
         self.route_options = {
@@ -19,7 +27,7 @@ class RoutePlannerBot:
 
     def get_chat_id(self):
         """Получить Chat ID автоматически"""
-        url = self.telegram_url + "getUpdates"
+        url = self.telegram_url + "getUpdates" 
         try:
             response = requests.get(url)
             updates = response.json()
@@ -38,7 +46,11 @@ class RoutePlannerBot:
     def send_message(self, text):
         """Отправка сообщения в Telegram"""
         if not self.chat_id:
-            if not self.get_chat_id():
+            # Пытаемся получить chat_id из переменных окружения или автоматически
+            chat_id_env = os.getenv("CHAT_ID")
+            if chat_id_env:
+                self.chat_id = chat_id_env
+            elif not self.get_chat_id():
                 return False
 
         url = self.telegram_url + "sendMessage"
